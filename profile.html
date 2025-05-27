@@ -1,82 +1,81 @@
 <!DOCTYPE html>
 <html lang="as">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AsomiyaBondhu - প্ৰফাইল</title>
   <style>
     body {
-      background: linear-gradient(to right, #e0f7fa, #fce4ec);
-      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #fce4ec);
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 30px;
+      padding: 40px;
     }
-    .container {
-      background-color: white;
+    .profile-container {
+      background-color: #ffffff;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       width: 100%;
+      max-width: 400px;
       text-align: center;
     }
     h2 {
-      color: #00695c;
+      color: #006064;
       margin-bottom: 20px;
     }
     input[type="file"] {
       margin: 15px 0;
-      padding: 10px;
     }
     button {
-      padding: 10px 20px;
-      background-color: #00796b;
+      background-color: #0097a7;
       color: white;
       border: none;
-      border-radius: 6px;
+      padding: 10px 20px;
       font-size: 16px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: 0.3s;
+      margin-top: 10px;
     }
     button:hover {
-      background-color: #004d40;
+      background-color: #007c91;
     }
     img {
       margin-top: 20px;
-      width: 120px;
-      height: 120px;
+      width: 130px;
+      height: 130px;
       object-fit: cover;
       border-radius: 50%;
-      border: 3px solid #00796b;
+      border: 3px solid #007c91;
     }
     .note {
-      font-size: 14px;
-      color: #555;
+      font-size: 13px;
+      color: #666;
       margin-top: 10px;
     }
   </style>
 </head>
 <body>
-
-  <div class="container">
-    <h2>প্ৰফাইল ফটো আপলোড কৰক</h2>
-    <input type="file" id="fileInput" accept="image/*">
-    <br>
+  <div class="profile-container">
+    <h2>আপোনাৰ প্ৰফাইল ফটো আপলোড কৰক</h2>
+    <input type="file" id="fileInput" accept="image/*" />
+    <br />
     <button id="uploadBtn">আপলোড কৰক</button>
-    <br>
-    <img id="profilePic" src="" alt="Profile Picture">
-    <p class="note">ফটো আপলোড কৰাৰ পিছত আপুনি ইয়াত চাব পাৰিব।</p>
+    <br />
+    <img id="profileImage" src="" alt="Profile Picture" />
+    <p class="note">আপলোড কৰাৰ পিছত ফটোটো ইয়াত দেখুৱাব।</p>
   </div>
 
-  <!-- Firebase JS SDK -->
+  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 
   <script>
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDOe67QxfmFnzj7hVOFrYdaLKrvNMUawWU",
       authDomain: "asomiyabondhu.firebaseapp.com",
@@ -92,52 +91,49 @@
     const storage = firebase.storage();
     const db = firebase.firestore();
 
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const profileImage = document.getElementById('profileImage');
+
     auth.onAuthStateChanged(user => {
       if (user) {
-        loadProfilePic(user.uid);
+        loadProfile(user.uid);
       } else {
-        alert("আপুনি লগ ইন কৰা নাই! অনুগ্ৰহ কৰি লগ ইন কৰক।");
-        // window.location.href = "login.html";
+        alert("অনুগ্ৰহ কৰি লগ ইন কৰক।");
+        window.location.href = "login.html";
       }
     });
 
-    const fileInput = document.getElementById("fileInput");
-    const uploadBtn = document.getElementById("uploadBtn");
-    const profilePic = document.getElementById("profilePic");
-
-    uploadBtn.addEventListener("click", () => {
+    uploadBtn.addEventListener('click', () => {
       const file = fileInput.files[0];
       const user = auth.currentUser;
-
       if (!file || !user) {
-        alert("দয়া কৰি ছবি বাছনি কৰক আৰু লগ ইন হোৱা নিশ্চিত কৰক।");
+        alert("ছবি বাছনি কৰক আৰু লগ ইন হৈ আছে নিশ্চিত কৰক।");
         return;
       }
 
-      const ref = storage.ref("profilePics/" + user.uid + "/" + file.name);
-
-      ref.put(file).then(snapshot => {
+      const storageRef = storage.ref('profilePics/' + user.uid + '/' + file.name);
+      storageRef.put(file).then(snapshot => {
         return snapshot.ref.getDownloadURL();
       }).then(url => {
-        profilePic.src = url;
+        profileImage.src = url;
         return db.collection("users").doc(user.uid).set({
-          profilePicURL: url
+          profilePic: url
         }, { merge: true });
       }).then(() => {
-        alert("আপোনাৰ প্ৰফাইল ফটো সফলতাৰে আপলোড কৰা হ’ল!");
+        alert("আপোনাৰ ফটো সফলতাৰে আপলোড কৰা হ’ল!");
       }).catch(error => {
-        alert("ত্ৰুটি: " + error.message);
+        alert("Upload error: " + error.message);
       });
     });
 
-    function loadProfilePic(uid) {
+    function loadProfile(uid) {
       db.collection("users").doc(uid).get().then(doc => {
-        if (doc.exists && doc.data().profilePicURL) {
-          profilePic.src = doc.data().profilePicURL;
+        if (doc.exists && doc.data().profilePic) {
+          profileImage.src = doc.data().profilePic;
         }
       });
     }
   </script>
-
 </body>
 </html>
