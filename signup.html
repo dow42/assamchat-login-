@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="as">
 <head>
-  <meta charset="UTF-8" />
-  <title>Sign Up - AsomiyaBondhu</title>
+  <meta charset="UTF-8">
+  <title>Login - AsomiyaBondhu</title>
 </head>
 <body>
-  <h2>Sign Up</h2>
+  <h2>Login</h2>
   <input type="email" id="email" placeholder="Email"><br><br>
   <input type="password" id="password" placeholder="Password"><br><br>
-  <button onclick="signUp()">Sign Up</button>
+  <button onclick="login()">Login</button>
 
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
@@ -26,13 +26,13 @@
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    function signUp() {
+    function login() {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      auth.createUserWithEmailAndPassword(email, password)
+      auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          alert("Sign up successful!");
+          alert("Login successful!");
           window.location.href = "profile.html";
         })
         .catch(error => {
